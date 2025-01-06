@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Chunkbase Tracker
+// @name         ChunkBase Tracker
 // @namespace    https://luisafk.dev
 // @version      v1.0.0
-// @description  Have the Chunkbase map update automatically to follow you in-game
+// @description  Have the ChunkBase map update automatically to follow you in-game
 // @author       LuisAFK
 // @match        https://www.chunkbase.com/apps/seed-map
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=chunkbase.com
