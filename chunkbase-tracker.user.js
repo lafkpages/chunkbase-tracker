@@ -7,6 +7,7 @@
 // @match        https://www.chunkbase.com/apps/seed-map
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=chunkbase.com
 // @grant        none
+// @downloadURL  https://github.com/lafkpages/chunkbase-tracker/raw/refs/heads/main/chunkbase-tracker.user.js
 // ==/UserScript==
 
 (() => {
