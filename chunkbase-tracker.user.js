@@ -52,7 +52,7 @@
     console.warn("[ChunkBase Tracker]", ...args);
   }
 
-  const sseUrl = "http://localhost:25566/pos/sse";
+  const mcLocalApiUrl = "http://localhost:25565";
 
   /**
    * @type {EventSource | null}
@@ -61,7 +61,7 @@
 
   followPlayerControlsInput.addEventListener("input", () => {
     if (followPlayerControlsInput.checked) {
-      sse = new EventSource(sseUrl);
+      sse = new EventSource(new URL("pos/sse", mcLocalApiUrl));
 
       followPlayerControlsInput.disabled = true;
       goBtn.disabled = true;
