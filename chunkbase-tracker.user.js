@@ -39,10 +39,32 @@
 
   // Inject styles
   const style = document.createElement("style");
-  style.textContent = `
-    
+  style.textContent = /*css*/ `
+    button.poi-goal {
+      margin-left: 4px;
+      width: 19px;
+      height: 19px;
+      padding: 2px;
+      position: relative;
+      top: 2px;
+      color: #2a1fff;
+    }
+
+    button.poi-goal * {
+      pointer-events: none;
+    }
+
+    button.poi-copy {
+      margin-left: 0px !important;
+    }
   `;
   document.head.appendChild(style);
+
+  // Icons
+  const icons = {
+    "map-pin-plus":
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-plus-icon lucide-map-pin-plus"><path d="M19.914 11.105A7.298 7.298 0 0 0 20 10a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 1.202 0 32 32 0 0 0 .824-.738"/><circle cx="12" cy="10" r="3"/><path d="M16 18h6"/><path d="M19 15v6"/></svg>',
+  };
 
   function log(...args) {
     console.log("[ChunkBase Tracker]", ...args);
@@ -52,7 +74,7 @@
     console.warn("[ChunkBase Tracker]", ...args);
   }
 
-  const mcLocalApiUrl = "http://localhost:25565";
+  const mcLocalApiUrl = "http://localhost:25566";
 
   /**
    * @type {EventSource | null}
@@ -121,4 +143,72 @@
       CB3FinderApp.triggerHandler("dimensionchanged", [dimension]);
     });
   }
+
+  let didHookIntoCB3 = false;
+  function hookIntoCB3() {
+    if (didHookIntoCB3) {
+      return;
+    }
+
+    if (typeof CB3TooltipManager === "undefined") {
+      return;
+    }
+
+    const _CB3TooltipManager_onCanvasClick = CB3TooltipManager.onCanvasClick;
+    CB3TooltipManager.onCanvasClick = function (...args) {
+      /**
+       * @type {{
+       *  hit: boolean;
+       *  handled: boolean;
+       * }}
+       */
+      const returnValue = _CB3TooltipManager_onCanvasClick.apply(this, args);
+
+      if (returnValue.hit) {
+        requestAnimationFrame(() => {
+          const poiCopyBtn = document.querySelector(
+            ".tippy-content button.poi-copy"
+          );
+
+          log("POI copy button found:", poiCopyBtn);
+
+          const poiGoalBtn = document.createElement("button");
+          poiGoalBtn.className = "poi-goal unstyled";
+          poiGoalBtn.type = "button";
+          poiGoalBtn.title = "Set as Baritone goal";
+          poiGoalBtn.innerHTML = icons["map-pin-plus"];
+
+          poiCopyBtn.insertAdjacentElement("beforebegin", poiGoalBtn);
+        });
+      }
+
+      return returnValue;
+    };
+
+    didHookIntoCB3 = true;
+    log("Hooked into CB3TooltipManager.onCanvasClick");
+  }
+
+  hookIntoCB3();
+  window.addEventListener("load", hookIntoCB3);
+
+  document.addEventListener("click", (e) => {
+    if (e.target.matches("button.poi-goal")) {
+      /**
+       * @type {HTMLButtonElement}
+       */
+      const poiGoalBtn = e.target;
+
+      const coordsText = poiGoalBtn.previousSibling.textContent;
+      const coords = coordsText.match(/(-?\d+)/g);
+      const baritoneCommand = `#goal ${coords.join(" ")}`;
+
+      log("Sending Baritone command:", baritoneCommand);
+
+      fetch(new URL("chat", mcLocalApiUrl), {
+        method: "POST",
+        body: baritoneCommand,
+      });
+    }
+  });
 })();
