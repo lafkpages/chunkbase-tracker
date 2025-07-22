@@ -57,11 +57,11 @@
   /**
    * @type {EventSource | null}
    */
-  let sse = null;
+  let posSse = null;
 
   followPlayerControlsInput.addEventListener("input", () => {
     if (followPlayerControlsInput.checked) {
-      sse = new EventSource(new URL("pos/sse", mcLocalApiUrl));
+      posSse = new EventSource(new URL("pos/sse", mcLocalApiUrl));
 
       followPlayerControlsInput.disabled = true;
       goBtn.disabled = true;
@@ -69,33 +69,33 @@
       const enable = () => {
         followPlayerControlsInput.disabled = false;
 
-        if (sse.readyState === sse.CLOSED) {
-          sse = null;
+        if (posSse.readyState === posSse.CLOSED) {
+          posSse = null;
           goBtn.disabled = false;
           return;
         }
 
-        sse.onopen = null;
-        sse.onerror = null;
+        posSse.onopen = null;
+        posSse.onerror = null;
       };
-      sse.onopen = enable;
-      sse.onerror = enable;
+      posSse.onopen = enable;
+      posSse.onerror = enable;
 
-      initSse();
+      initPosSse();
     } else {
-      sse.close();
-      sse = null;
+      posSse.close();
+      posSse = null;
 
       goBtn.disabled = false;
     }
   });
 
-  function initSse() {
-    sse.addEventListener("open", () => {
+  function initPosSse() {
+    posSse.addEventListener("open", () => {
       log("SSE connection established");
     });
 
-    sse.addEventListener("message", (e) => {
+    posSse.addEventListener("message", (e) => {
       const [, x, y, z] = e.data.match(
         /\(\s*(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\s*\)/
       );
@@ -108,7 +108,7 @@
       CB3FinderApp.triggerHandler("goto", [X, Z]);
     });
 
-    sse.addEventListener("changeworld", (e) => {
+    posSse.addEventListener("changeworld", (e) => {
       if (!e.data.startsWith("minecraft:")) {
         warn("Received invalid world:", e.data);
         return;
