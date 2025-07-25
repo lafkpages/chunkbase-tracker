@@ -79,11 +79,13 @@
   /**
    * @type {EventSource | null}
    */
-  let posSse = null;
+  let playerPositionStream = null;
 
   followPlayerControlsInput.addEventListener("input", () => {
     if (followPlayerControlsInput.checked) {
-      posSse = new EventSource(new URL("pos/sse", mcLocalApiUrl));
+      playerPositionStream = new EventSource(
+        new URL("player/position/stream", mcLocalApiUrl)
+      );
 
       followPlayerControlsInput.disabled = true;
       goBtn.disabled = true;
@@ -91,33 +93,33 @@
       const enable = () => {
         followPlayerControlsInput.disabled = false;
 
-        if (posSse.readyState === posSse.CLOSED) {
-          posSse = null;
+        if (playerPositionStream.readyState === playerPositionStream.CLOSED) {
+          playerPositionStream = null;
           goBtn.disabled = false;
           return;
         }
 
-        posSse.onopen = null;
-        posSse.onerror = null;
+        playerPositionStream.onopen = null;
+        playerPositionStream.onerror = null;
       };
-      posSse.onopen = enable;
-      posSse.onerror = enable;
+      playerPositionStream.onopen = enable;
+      playerPositionStream.onerror = enable;
 
       initPosSse();
     } else {
-      posSse.close();
-      posSse = null;
+      playerPositionStream.close();
+      playerPositionStream = null;
 
       goBtn.disabled = false;
     }
   });
 
   function initPosSse() {
-    posSse.addEventListener("open", () => {
+    playerPositionStream.addEventListener("open", () => {
       log("SSE connection established");
     });
 
-    posSse.addEventListener("message", (e) => {
+    playerPositionStream.addEventListener("message", (e) => {
       const [, x, y, z] = e.data.match(
         /\(\s*(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\s*\)/
       );
@@ -130,7 +132,7 @@
       CB3FinderApp.triggerHandler("goto", [X, Z]);
     });
 
-    posSse.addEventListener("changeworld", (e) => {
+    playerPositionStream.addEventListener("changeworld", (e) => {
       if (!e.data.startsWith("minecraft:")) {
         warn("Received invalid world:", e.data);
         return;
@@ -205,7 +207,7 @@
 
       log("Sending Baritone command:", baritoneCommand);
 
-      fetch(new URL("chat", mcLocalApiUrl), {
+      fetch(new URL("chat/messages", mcLocalApiUrl), {
         method: "POST",
         body: baritoneCommand,
       });
