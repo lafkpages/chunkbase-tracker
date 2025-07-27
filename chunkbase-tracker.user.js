@@ -101,6 +101,13 @@
     hasBaritone = !!installedMods.baritone;
     hasXaerosMinimap = !!installedMods.xaerominimap;
 
+    log(hasBaritone ? "Baritone detected" : "Baritone not detected");
+    log(
+      hasXaerosMinimap
+        ? "Xaero's Minimap detected"
+        : "Xaero's Minimap not detected"
+    );
+
     // Add "Follow player" checkbox to the controls
     const controlsContainer = document.querySelector(
       "#seed-controls .fancy-box:first-of-type"
