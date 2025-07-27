@@ -101,11 +101,13 @@
     hasBaritone = !!installedMods.baritone;
     hasXaerosMinimap = !!installedMods.xaerominimap;
 
-    log(hasBaritone ? "Baritone detected" : "Baritone not detected");
+    log(
+      hasBaritone ? "\u2705 Baritone detected" : "\u274C Baritone not detected"
+    );
     log(
       hasXaerosMinimap
-        ? "Xaero's Minimap detected"
-        : "Xaero's Minimap not detected"
+        ? "\u2705 Xaero's Minimap detected"
+        : "\u274C Xaero's Minimap not detected"
     );
 
     // Add "Follow player" checkbox to the controls
